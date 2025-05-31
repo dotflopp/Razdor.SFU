@@ -1,12 +1,4 @@
-import express from 'express';
+import SignalingHub from "./infrastructure/signaling-hub";
 
-const app = express();
-const PORT = 3000;
-
-app.get('/', (req, res) => {
-  res.send('Hello from TypeScript Server!');
-});
-
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
-});
+const signalingHub = new SignalingHub(3000)
+signalingHub.startServer()

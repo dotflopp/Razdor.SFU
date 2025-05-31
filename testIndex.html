@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebSocket Клиент</title>
+</head>
+<body>
+  <h1>WebSocket клиент</h1>
+  <input type="text" id="messageInput" placeholder="Введите сообщение" />
+  <button onclick="sendMessage()">Отправить</button>
+  <ul id="messages"></ul>
+
+  <script>
+    // Подключение к WebSocket серверу
+    const socket = new WebSocket('ws://localhost:3000?token=asdaskdjaksdak');
+
+    // Подключение установлено
+    socket.addEventListener('open', function (event) {
+      console.log('Подключено к серверу');
+    });
+
+    // Получение сообщения от сервера
+    socket.addEventListener('message', function (event) {
+      const li = document.createElement('li');
+      li.textContent = `Ответ от сервера: ${event.data}`;
+      document.getElementById('messages').appendChild(li);
+    });
+
+    // Функция отправки сообщения
+    function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const message = input.value;
+
+      socket.send(JSON.stringify(
+        { 
+          event: 'offerr',
+          data: message
+        })
+      )
+      input.value = '';
+    }
+  </script>
+</body>
+</html
