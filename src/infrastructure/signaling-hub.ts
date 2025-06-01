@@ -40,15 +40,24 @@ class SignalingHub implements IMessageReciver {
   private setupWebSocket(): void {
     
     this.wsServer.on('connection', (socket, message) => {
-      const matchs = Array.from(message.url?.matchAll(/\?token=(.*)/) ?? [])
-      const token = matchs[0]!.groups![0];
+      //const matchs = Array.from(message.url?.matchAll(/\?token=(.*)/) ?? [])
+      //const token = matchs[0]!.groups![0];
 
-      const sessionId = this.coordinator.acceptConnection(token);
-      this.wsConnections.set(sessionId, socket);  
-
-
+      //const sessionId = this.coordinator.acceptConnection(token);
+      //this.wsConnections.set(sessionId, socket);
+      
+      //заплатка
+      var iTemp = 0
+      if(this.wsConnections.has('1')) {
+        this.wsConnections.set('2', socket)
+        iTemp = 2
+      } 
+      else {
+        this.wsConnections.set('1', socket)
+        iTemp = 1
+      }
+      
       console.log('Клиент подключился');
-      console.log(message);
       
       // Получение сообщений от клиента
       socket.on('message', (message) => {
@@ -60,7 +69,19 @@ class SignalingHub implements IMessageReciver {
           case 'answer':
           case 'offer': {
             const data = wsMessage.data
-            console.log(data)
+
+            for(var i = 1; i <= 2; i++) {
+              const listener = this.wsConnections.get((i).toString())
+              if(listener != socket) {
+                
+                listener?.send(JSON.stringify({ 
+                  event: wsMessage.event,
+                  data: wsMessage.data
+                }))
+
+                console.log("Пересылаем сообщение", wsMessage.event, iTemp, "->", i)
+              }
+            }
             break
           }
         }
