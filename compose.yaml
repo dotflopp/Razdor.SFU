@@ -1,0 +1,5 @@
+services:
+  signaling-server:
+    build: .
+    ports:
+    - "8070:8080"

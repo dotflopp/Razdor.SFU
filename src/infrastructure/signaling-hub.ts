@@ -1,28 +1,25 @@
-import express from 'express';
-import { createServer, Server as HttpServer } from 'http';
-import { WebSocketServer, WebSocket } from 'ws';
-import { TokenPayload, WsMessage } from '../models';
-import { IMessageReciver }  from '../services/message-reciver'
-import { Coordinator } from '../services/coordinator';
+import { WebSocket, WebSocketServer } from 'ws';
+import { TokenPayload, WsMessage } from '../services/models';
+import { IMessageReciver }  from '../services/IMessageReciver'
+import { CoordinatorProvider } from '../services/coordinator-provider';
+import { SessionManager } from './session-manager';
+import { IncomingMessage } from 'http';
+import { TokenSource } from './token-source'
+import url from 'url'
 
 
 class SignalingHub implements IMessageReciver {
-  private readonly wsServer: WebSocketServer 
-  private readonly httpServer : HttpServer 
-  private readonly port: number
   private readonly wsConnections: Map<string, WebSocket>
-  private readonly coordinator: Coordinator
   
-  constructor(port: number) {
+  constructor(
+    private readonly wsServer: WebSocketServer, 
+    private readonly sessionManager: SessionManager, 
+    private readonly coordinatorProvider: CoordinatorProvider,
+    private readonly tokenSource: TokenSource,
+  ) {
     this.wsConnections = new Map()
-    this.port = port
-    const app = express();
-    this.httpServer = createServer(app);
-    this.wsServer = new WebSocketServer({ server: this.httpServer })   
     this.setupWebSocket();
-    this.coordinator = new Coordinator();
-  }
-  
+  }  
 
   send(userId: string, message: any): void {
     
@@ -37,70 +34,51 @@ class SignalingHub implements IMessageReciver {
     })
   }
 
-  private setupWebSocket(): void {
-    
-    this.wsServer.on('connection', (socket, message) => {
-      //const matchs = Array.from(message.url?.matchAll(/\?token=(.*)/) ?? [])
-      //const token = matchs[0]!.groups![0];
+  private getSessionByToken(token: string){
+    const {sessionId} = this.tokenSource.readToken(token)
+    return this.sessionManager.getById(sessionId);
+  }
 
-      //const sessionId = this.coordinator.acceptConnection(token);
-      //this.wsConnections.set(sessionId, socket);
-      
-      //заплатка
-      var iTemp = 0
-      if(this.wsConnections.has('1')) {
-        this.wsConnections.set('2', socket)
-        iTemp = 2
-      } 
-      else {
-        this.wsConnections.set('1', socket)
-        iTemp = 1
-      }
-      
-      console.log('Клиент подключился');
+  private setupWebSocket(): void {
+    this.wsServer.on('connection', (socket, message: IncomingMessage) => {
+      console.log('Клиент подключился'); 
+
+      var token = url.parse(message.url ?? "/", true).query["access-token"] as string;
+      const session = this.getSessionByToken(token);
+      console.log(this.getSessionByToken(token))
+
+      const coordinator = this.coordinatorProvider.create(session)
+      this.wsConnections.set(session.id, socket);
+
+      coordinator.onConnected()
       
       // Получение сообщений от клиента
       socket.on('message', (message) => {
-        
-        const wsMessage: WsMessage<any> = JSON.parse(message.toString())
-
+        const wsMessage: WsMessage<any> = JSON.parse(message.toString())  
         switch(wsMessage.event) {
           case 'ice-candidate':
-          case 'answer':
+            console.log('ice')
+            break;
+          case 'answer': 
+            console.log('answer')
+            coordinator.acceptAnswer(wsMessage.data)
+            break; 
           case 'offer': {
-            const data = wsMessage.data
-
-            for(var i = 1; i <= 2; i++) {
-              const listener = this.wsConnections.get((i).toString())
-              if(listener != socket) {
-                
-                listener?.send(JSON.stringify({ 
-                  event: wsMessage.event,
-                  data: wsMessage.data
-                }))
-
-                console.log("Пересылаем сообщение", wsMessage.event, iTemp, "->", i)
-              }
-            }
-            break
+            console.log('offer')
+            coordinator.acceptOffer(wsMessage.data)  
+            break;
           }
         }
-        
       });
 
       // Отключение клиента
       socket.on('close', () => {
-        console.log('Клиент отключился');
+        this.sessionManager.remove(session.id)
+        this.wsConnections.delete(session.userId)
+        coordinator.onDisconnected()
       });
     });
   }
-
-  public startServer():void {
-    this.httpServer.listen(this.port, () => {
-      console.log('Сервер запущен')}
-    )
-  }
 }
-
 
 export default SignalingHub;

@@ -11,6 +11,20 @@
   <ul id="messages"></ul>
 
   <script>
+    //api
+    
+    fetch("http://localhost:3000/sessions", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json"
+      },
+      body: JSON.stringify()
+    })
+    .then(async (resp) => {
+      const data = await resp.json();
+      console.log('Сессии:', data);
+    })
+    
     // Подключение к WebSocket серверу
     const socket = new WebSocket('ws://localhost:3000?token=asdaskdjaksdak');
 

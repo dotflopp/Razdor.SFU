@@ -1,0 +1,9 @@
+POST http://localhost:3000/sessions
+Content-Type: application/json
+
+{
+    "channelId": "58089110555852800",
+    "userId": "57404346547044352"
+}
+
+###

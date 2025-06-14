@@ -1,6 +1,8 @@
 import { Buffer } from "buffer";
 import crypto from "crypto";
-import { TokenPayload } from "../models";
+import { TokenPayload } from "../services/models";
+
+
 
 
 export class InvalidTokenFormatError extends Error {}
@@ -10,32 +12,25 @@ export class TokenSource {
         private secret :string
     ){}
 
-    public newToken({userId, roomId} : TokenPayload) : string {
-        var userIdBase64 = encodeBase64Url(
-            Buffer.from(userId)
+    public newToken({sessionId} : TokenPayload) : string {
+        var payload = encodeBase64Url(
+            Buffer.from(sessionId)
         )
-        var roomIdBase64 = encodeBase64Url(
-            Buffer.from(roomId)
-        )
-
-        var payload = userIdBase64 + "." + roomIdBase64; 
 
         var signature = crypto.createHmac("sha256", this.secret)
             .update(payload)
             .digest("base64url")
         
-
         return payload + "." + signature;
     }
 
     public readToken(token: string): TokenPayload {
         const tokenData = token.split(".");
-        if (tokenData.length != 3)
+        if (tokenData.length != 2)
             throw new InvalidTokenFormatError();
 
         return {
-            userId: decodeBase64Url(tokenData[0]).toString("ascii"),
-            roomId: decodeBase64Url(tokenData[1]).toString("ascii")
+            sessionId: decodeBase64Url(tokenData[0]).toString("ascii"),
         }
     }
 
