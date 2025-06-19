@@ -1,6 +1,6 @@
 import { Room } from "../domain/room";
 import { IMessageReciver } from "./IMessageReciver";
-import { AcceptAnswerCommand, AcceptOfferCommand, CreateSessionCommand, IUserSession, WsMessage } from "./models";
+import { IUserSession, WsMessage } from "./models";
 
 
 export class Coordinator {  
@@ -12,9 +12,7 @@ export class Coordinator {
     
     public onConnected() {        
         if(!this.channels.has(this.session.channelId)) {
-            this.createRoom();
-
-                     
+            this.createRoom();            
         }
         const room = this.channels.get(this.session.channelId);
         if (room) {
@@ -22,19 +20,19 @@ export class Coordinator {
         }
         const message: WsMessage = {
             event: "userInChannel",
-            data: room?.users
+            body: room?.users
         }
 
         this.recive(message);   
     }
            
     public forward(wsMessage: WsMessage) {
-        const to = wsMessage.data.to
+        const to = wsMessage.body.to
         const message: WsMessage = {
             event: wsMessage.event,
-            data: {
+            body: {
                 from: this.session.userId,
-                sdp: wsMessage.data.sdp
+                data: wsMessage.body.data
             }
         }
         this.reciver.send(to, message)

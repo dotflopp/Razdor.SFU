@@ -33,7 +33,8 @@ app.post("/sessions", (req, res) => {
     const userId = data["userId"];
 
     const session = sessions.create({userId, channelId});
-
+    console.log(session)
+    
     const resp = {
        token: tokens.newToken({sessionId:session.id})
     }

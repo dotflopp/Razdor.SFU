@@ -18,7 +18,7 @@ export type wsEventType = 'userInChannel' | 'userJoinRoom' | 'userLeaveRoom' | '
 // Сообщение от клиента к серверу
 export interface WsMessage<T = any> {
   event: wsEventType;
-  data: T;
+  body: T;
 }
 
 export interface TokenPayload{
