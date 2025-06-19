@@ -32,7 +32,8 @@ export class Coordinator {
            
     public forward(wsMessage: WsMessage) {
         console.log(wsMessage)
-        const to = wsMessage.body.from
+        const to = wsMessage.body.to
+        console.log(to)
         const message: WsMessage = {
             event: wsMessage.event,
             body: {
