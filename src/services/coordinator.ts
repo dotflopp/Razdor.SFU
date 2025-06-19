@@ -21,7 +21,7 @@ export class Coordinator {
         const message: WsMessage = {
             event: "userInChannel",
             body: {
-                data: room?.users.values()
+                data: Array.from(room?.users || []) 
             }
         }
 
