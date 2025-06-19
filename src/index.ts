@@ -10,7 +10,7 @@ import { Room } from "./domain/room";
 
 const coordinatorProvider = new CoordinatorProvider()
 
-const port = 8080;
+const port = 8070;
 const app = express();
 const httpServer = createServer(app)
 const wsServer = new WebSocketServer({server: httpServer, path: "/signaling"})  

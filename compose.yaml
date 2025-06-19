@@ -2,4 +2,4 @@ services:
   signaling-server:
     build: .
     ports:
-    - "8070:8080"
+    - "127.0.0.1:8070:8070"
