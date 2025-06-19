@@ -52,7 +52,6 @@ export class TokenSource {
     }
 }
 
-
 function encodeBase64Url(buffer: Buffer) : string {
     return buffer.toString('base64')
       .replace(/\+/g, '-')
@@ -60,10 +59,10 @@ function encodeBase64Url(buffer: Buffer) : string {
       .replace(/=+$/g, '')
   }
   
-  function decodeBase64Url(base64url: string) : Buffer {
-    const base64 = base64url
-      .replace(/-/g, '+')
-      .replace(/_/g, '/') + '=='.slice(0, (4 - (base64url.length % 4)) % 4)
-  
-    return Buffer.from(base64, 'base64')
-  }
+function decodeBase64Url(base64url: string) : Buffer {
+  const base64 = base64url
+    .replace(/-/g, '+')
+    .replace(/_/g, '/') + '=='.slice(0, (4 - (base64url.length % 4)) % 4)
+
+  return Buffer.from(base64, 'base64')
+}

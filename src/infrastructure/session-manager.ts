@@ -2,20 +2,17 @@ import { TokenPayload, IUserSession } from "../services/models";
 import { CreateSessionCommand } from "../services/models";
 import { TokenSource } from "./token-source"
 
-export class SessionManager
-{
+export class SessionManager {
     private readonly sessions: Map<string, IUserSession>;
-    
-    constructor()
-    {
+    constructor() {
         this.sessions = new Map<string, IUserSession>();
-        //ТЕСТ!!!
-        const seed : IUserSession = {
-            id: "80a74c0a-e3be-4a8a-8ac8-72fc7a3d41ea",
-            userId: "57404346547044352",
-            channelId: "58089110555852800" 
-        }
-        this.sessions.set(seed.id, seed)
+        // ТЕСТ!!!
+        // const seed : IUserSession = {
+        //     id: "80a74c0a-e3be-4a8a-8ac8-72fc7a3d41ea",
+        //     userId: "57404346547044352",
+        //     channelId: "58089110555852800" 
+        // }
+        // this.sessions.set(seed.id, seed)
     }
     
     public create({userId, channelId }: CreateSessionCommand): IUserSession

@@ -25,6 +25,7 @@ const rooms = new Map<string, Room>();
 coordinatorProvider.inject(userSession => new Coordinator(userSession, signalingHub, rooms))
 
 app.use(express.json());
+
 app.post("/sessions", (req, res) => {
     const data = req.body 
     

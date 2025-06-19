@@ -12,7 +12,7 @@ export interface AcceptAnswerCommand {
 }
 
 // Типы событий 
-export type wsEventType = 'joinRoom' | 'leaveRoom' | 'offer' | 'answer' | 'ice-candidate';
+export type wsEventType = 'userInChannel' | 'userJoinRoom' | 'userLeaveRoom' | 'offer' | 'answer' | 'ice-candidate';
 
 
 // Сообщение от клиента к серверу

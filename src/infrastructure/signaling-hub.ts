@@ -21,16 +21,15 @@ class SignalingHub implements IMessageReciver {
     this.setupWebSocket();
   }  
 
-  send(userId: string, message: any): void {
-    
+  public send(userId: string, message: any): void {
+    const socket = this.wsConnections.get(userId)
+    socket?.send(JSON.stringify(message))
   }
 
-  public broadcastSend(userIds: Set<String>, message: any): void {
+  public broadcastSend(userIds: Set<string>, message: any): void {
     if (userIds.size == 0) return
     userIds.forEach((client) =>{
-      const socket = this.wsConnections.get(client.toString());
-      
-      socket?.send(message)
+      this.send(client, message)
     })
   }
 
@@ -45,10 +44,12 @@ class SignalingHub implements IMessageReciver {
 
       var token = url.parse(message.url ?? "/", true).query["access-token"] as string;
       const session = this.getSessionByToken(token);
+
       console.log(this.getSessionByToken(token))
 
+      //создаем координатора для управления одной сессией
       const coordinator = this.coordinatorProvider.create(session)
-      this.wsConnections.set(session.id, socket);
+      this.wsConnections.set(session.userId, socket);
 
       coordinator.onConnected()
       
@@ -57,20 +58,19 @@ class SignalingHub implements IMessageReciver {
         const wsMessage: WsMessage<any> = JSON.parse(message.toString())  
         switch(wsMessage.event) {
           case 'ice-candidate':
-            console.log('ice')
+            coordinator.forward(wsMessage)
             break;
           case 'answer': 
             console.log('answer')
-            coordinator.acceptAnswer(wsMessage.data)
+            coordinator.forward(wsMessage)
             break; 
           case 'offer': {
             console.log('offer')
-            coordinator.acceptOffer(wsMessage.data)  
+            coordinator.forward(wsMessage)
             break;
           }
         }
       });
-
       // Отключение клиента
       socket.on('close', () => {
         this.sessionManager.remove(session.id)
