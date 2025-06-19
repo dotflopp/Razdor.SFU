@@ -15,14 +15,16 @@ export class Coordinator {
             this.createRoom();            
         }
         const room = this.channels.get(this.session.channelId);
-        if (room) {
-            room.add(this.session.userId);
-        }
+        
         const message: WsMessage = {
             event: "userInChannel",
             body: {
                 data: Array.from(room?.users || []) 
             }
+        }
+        
+        if (room) {
+            room.add(this.session.userId);
         }
 
         this.recive(message);   
