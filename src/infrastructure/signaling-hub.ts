@@ -58,14 +58,9 @@ class SignalingHub implements IMessageReciver {
         const wsMessage: WsMessage<any> = JSON.parse(message.toString())  
         switch(wsMessage.event) {
           case 'ice-candidate':
-            coordinator.forward(wsMessage)
-            break;
           case 'answer': 
-            console.log('answer')
-            coordinator.forward(wsMessage)
-            break; 
           case 'offer': {
-            console.log('offer')
+            console.log(message)
             coordinator.forward(wsMessage)
             break;
           }
