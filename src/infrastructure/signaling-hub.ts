@@ -20,7 +20,7 @@ class SignalingHub implements IMessageReciver {
     this.wsConnections = new Map()
     this.setupWebSocket();
   }  
-
+  
   public send(userId: string, message: any): void {
     const socket = this.wsConnections.get(userId)
     socket?.send(JSON.stringify(message))

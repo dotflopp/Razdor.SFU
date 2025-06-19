@@ -22,7 +22,7 @@ export class Coordinator {
                 data: Array.from(room?.users || []) 
             }
         }
-        
+
         if (room) {
             room.add(this.session.userId);
         }
@@ -31,7 +31,8 @@ export class Coordinator {
     }
            
     public forward(wsMessage: WsMessage) {
-        const to = wsMessage.body.to
+        console.log(wsMessage)
+        const to = wsMessage.body.from
         const message: WsMessage = {
             event: wsMessage.event,
             body: {
