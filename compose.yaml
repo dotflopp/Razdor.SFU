@@ -1,5 +1,6 @@
 services:
   signaling-server:
+    restart: on-failure
     build: .
     ports:
     - "127.0.0.1:8070:8070"
